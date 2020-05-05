@@ -16,6 +16,8 @@ export const COMMENT_SUBSCRIPTION_TYPE = Object.freeze({
 });
 
 export class CommentSubscription extends Component {
+  mousedOutOfPanel = false;
+
   constructor(props) {
     const { subscriptionType } = props;
     super(props);
@@ -74,12 +76,50 @@ export class CommentSubscription extends Component {
     });
   };
 
+  windowClick = (_event) => {
+    this.setState((prevState) => {
+      const { showOptions } = this.state;
+
+      if (showOptions && this.mousedOutOfPanel) {
+        this.mousedOutOfPanel = false;
+        return { ...prevState, showOptions: false };
+      }
+
+      return prevState;
+    });
+  };
+
+  mouseOverOptionsPanel = (_event) => {
+    this.mousedOutOfPanel = false;
+  };
+
+  mouseOutOptionsPanel = (event) => {
+    event.stopPropagation();
+
+    this.mousedOutOfPanel = true;
+  };
+
   registerEvents() {
+    const { base: optionsPanel } = this.dropdownElement;
+
+    optionsPanel.addEventListener('mouseover', this.mouseOverOptionsPanel);
+
+    optionsPanel.addEventListener('mouseout', this.mouseOutOptionsPanel, true);
+
     window.addEventListener('scroll', this.dropdownPlacementHandler);
+
     this.dropdownPlacementHandler();
   }
 
   unregisterEvents() {
+    if (this.dropdownElement) {
+      const { base: optionsPanel } = this.dropdownElement;
+
+      optionsPanel.removeEventListener('mouseover', this.mouseOverOptionsPanel);
+      optionsPanel.removeEventListener('mouseout', this.mouseOutOptionsPanel);
+    }
+
+    window.removeEventListener('click', this.windowClick);
     window.removeEventListener('scroll', this.dropdownPlacementHandler);
   }
 
@@ -136,6 +176,10 @@ export class CommentSubscription extends Component {
               contentType="icon"
               onClick={(_event) => {
                 this.setState({ showOptions: !showOptions });
+
+                if (!showOptions) {
+                  window.addEventListener('click', this.windowClick);
+                }
               }}
             />
           )}
