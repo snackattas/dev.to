@@ -40,15 +40,14 @@ export class CommentSubscription extends Component {
     const { showOptions } = this.state;
 
     if (showOptions) {
-      window.addEventListener('scroll', this.dropdownPlacementHandler);
-      this.dropdownPlacementHandler();
+      this.registerEvents();
     } else {
-      window.removeEventListener('scroll', this.dropdownPlacementHandler);
+      this.unregisterEvents();
     }
   }
 
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.dropdownPlacementHandler);
+    this.unregisterEvents();
   }
 
   dropdownPlacementHandler = () => {
@@ -74,6 +73,15 @@ export class CommentSubscription extends Component {
       subscriptionType: event.target.value,
     });
   };
+
+  registerEvents() {
+    window.addEventListener('scroll', this.dropdownPlacementHandler);
+    this.dropdownPlacementHandler();
+  }
+
+  unregisterEvents() {
+    window.removeEventListener('scroll', this.dropdownPlacementHandler);
+  }
 
   render() {
     const { showOptions, subscriptionType, subscribed } = this.state;
