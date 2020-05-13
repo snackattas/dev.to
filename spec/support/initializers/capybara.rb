@@ -6,9 +6,11 @@ Webdrivers.cache_time = 86_400
 
 Capybara.default_max_wait_time = 10
 
-Capybara.register_driver :headless_chrome do |app|
+Capybara.register_driver :chrome do |app|
+  headless_args = %w[no-sandbox disable-gpu window-size=1920,1080 --enable-features=NetworkService,NetworkServiceInProcess]
+  args = ENV["HEADLESS"] == "false" ? [] : headless_args
   options = Selenium::WebDriver::Chrome::Options.new(
-    args: %w[no-sandbox headless disable-gpu window-size=1920,1080 --enable-features=NetworkService,NetworkServiceInProcess],
+    args: args,
     log_level: :error,
   )
 
@@ -29,7 +31,7 @@ RSpec.configure do |config|
 
       driven_by :selenium, using: :chrome, screen_size: [1400, 2000], options: { url: ENV["SELENIUM_URL"] }
     else
-      driven_by :headless_chrome
+      driven_by :chrome
     end
   end
 end
